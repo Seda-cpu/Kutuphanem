@@ -13,6 +13,8 @@ struct AddBookView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
     
+    let context: AddBookContext
+    
     @State private var title = ""
     @State private var author = ""
     @State private var isOwned = true
@@ -29,20 +31,29 @@ struct AddBookView: View {
                     TextField("Yazar", text: $author)
                 }
                 
-                Section(header: Text("Durum")) {
-                    Toggle("Sahibim", isOn: $isOwned)
-                    
-                    Picker("Okuma Durumu", selection: $readingStatus) {
-                        ForEach(ReadingStatus.allCases) {status in Text(status.rawValue).tag(status)}
+                if context == .library {
+                    Section("Okuma Durumu") {
+                        Picker("Durum", selection: $readingStatus) {
+                            ForEach(ReadingStatus.allCases) { status in
+                                Text(status.rawValue).tag(status)
+                            }
+                        }
                     }
                 }
+                
+//                Section(header: Text("Durum")) {
+//                    Toggle("Sahibim", isOn: $isOwned)
+//                    
+//                    Picker("Okuma Durumu", selection: $readingStatus) {
+//                        ForEach(ReadingStatus.allCases) {status in Text(status.rawValue).tag(status)}
+//                    }
+//                }
                 
                 Section(header: Text("Not")) {
                     TextEditor(text: $note).frame(minHeight: 100)
                 }
             }
-            .navigationTitle("Kitap Ekle")
-            .navigationBarTitleDisplayMode( .inline )
+            .navigationTitle(context == .library ? "Kitap Ekle" : "İstek Listesine Ekle")
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button("Iptal"){
@@ -59,19 +70,35 @@ struct AddBookView: View {
         }
     }
     
-    
     private func saveBook() {
+        let owned = (context == .library)
+
         let book = Book(
             title: title,
             author: author,
-            isOwned: isOwned,
-            readingStatus: readingStatus,
+            isOwned: owned,
+            readingStatus: owned ? readingStatus : .toRead,
             note: note.isEmpty ? nil : note
         )
+
         modelContext.insert(book)
-        
         dismiss()
     }
+
+    
+    
+//    private func saveBook() {
+//        let book = Book(
+//            title: title,
+//            author: author,
+//            isOwned: isOwned,
+//            readingStatus: readingStatus,
+//            note: note.isEmpty ? nil : note
+//        )
+//        modelContext.insert(book)
+//        
+//        dismiss()
+//    }
 }
 
 

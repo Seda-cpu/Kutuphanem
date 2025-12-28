@@ -40,7 +40,7 @@ struct LibraryView: View {
                 }
             }
             .sheet(isPresented: $showAddBook) {
-                AddBookView()
+                AddBookView(context: .library)
             }
         }
     }
