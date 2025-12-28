@@ -29,16 +29,3 @@ struct BookRowView: View {
     }
 }
 
-#Preview {
-    BookRowView(
-        book: Book(
-            id: UUID(),
-            title: "Tutunamayanlar",
-            author: "Oğuz Atay",
-            isOwned: true,
-            readingStatus: .finished,
-            note: nil,
-            coverImageName: nil
-        )
-    )
-}

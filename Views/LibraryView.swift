@@ -6,31 +6,48 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct LibraryView: View {
     
+    @Environment(\.modelContext) private var modelContext
     
-    @State private var books: [Book] = [
-        Book(id: UUID(), title: "Hekaton'la Son Tango", author: "Mustafa Merter", isOwned: true, readingStatus: .finished, note: "Bazı bölümleri tekrar okumak istiyorum.", coverImageName: nil),
-        Book(id: UUID(), title: "Puslu Kıtalar Atlası", author: "İhsan Oktay Anar", isOwned: true, readingStatus: .reading, note: "nil", coverImageName: nil),
-        
-    ]
+    @Query(filter: #Predicate<Book> { $0.isOwned == true })
+    private var books: [Book]
     
-    
+    @State private var showAddBook = false
     
     var body: some View {
         NavigationStack {
             List {
-                ForEach($books.filter { $0.wrappedValue.isOwned}) { $book in NavigationLink {
-                    BookDetailView(book: $book)
-                } label: {
-                    BookRowView(book: book)
-                }}
-            }.navigationTitle(Text("Kütüphanem"))
+                ForEach(books) { book in
+                    NavigationLink {
+                        BookDetailView(book: book)
+                    } label: {
+                        BookRowView(book: book)
+                    }
+                }
+                .onDelete(perform: deleteBook)
+            }
+            .navigationTitle("Kütüphanem")
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button {
+                        showAddBook = true
+                    } label: {
+                        Image(systemName: "plus")
+                    }
+                }
+            }
+            .sheet(isPresented: $showAddBook) {
+                AddBookView()
+            }
         }
     }
-}
-
-#Preview {
-    LibraryView()
+    
+    private func deleteBook(at offsets: IndexSet) {
+        for index in offsets {
+            modelContext.delete(books[index])
+        }
+    }
 }

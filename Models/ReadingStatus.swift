@@ -7,11 +7,11 @@
 
 import Foundation
 
-enum ReadingStatus: String, CaseIterable, Identifiable {
+enum ReadingStatus: String, CaseIterable, Identifiable, Codable {
     case toRead = "Okuyacağım"
     case reading = "Okuyorum"
     case finished = "Okudum"
     case abondoned = "Yarım bıraktım"
     
-    var id: String { self.rawValue }
+    var id: String { rawValue }
 }

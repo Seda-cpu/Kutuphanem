@@ -6,21 +6,21 @@
 //
 
 import Foundation
+import SwiftData
 
 
-struct Book: Identifiable {
-    var id: UUID
-    
+@Model
+class Book {
     var title: String
     var author: String
-    
+
     var isOwned: Bool
     var ReadingStatus: ReadingStatus
     var note: String?
     var coverImageName: String?
     
-    init(id: UUID = UUID(), title: String, author: String, isOwned: Bool, readingStatus: ReadingStatus, note: String? = nil, coverImageName: String? = nil) {
-        self.id = id
+    init(title: String, author: String, isOwned: Bool, readingStatus: ReadingStatus, note: String? = nil, coverImageName: String? = nil) {
+        
         self.title = title
         self.author = author
         self.isOwned = isOwned
@@ -28,4 +28,30 @@ struct Book: Identifiable {
         self.note = note
         self.coverImageName = coverImageName
     }
+    
 }
+
+
+
+
+//struct Book: Identifiable {
+//    var id: UUID
+//    
+//    var title: String
+//    var author: String
+//    
+//    var isOwned: Bool
+//    var ReadingStatus: ReadingStatus
+//    var note: String?
+//    var coverImageName: String?
+//    
+//    init(id: UUID = UUID(), title: String, author: String, isOwned: Bool, readingStatus: ReadingStatus, note: String? = nil, coverImageName: String? = nil) {
+//        self.id = id
+//        self.title = title
+//        self.author = author
+//        self.isOwned = isOwned
+//        self.ReadingStatus = readingStatus
+//        self.note = note
+//        self.coverImageName = coverImageName
+//    }
+//}
