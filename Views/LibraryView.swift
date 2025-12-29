@@ -16,18 +16,16 @@ struct LibraryView: View {
     private var books: [Book]
     
     @State private var showAddBook = false
+    @State private var layout: LibraryLayout = .list
     
     var body: some View {
         NavigationStack {
-            List {
-                ForEach(books) { book in
-                    NavigationLink {
-                        BookDetailView(book: book)
-                    } label: {
-                        BookRowView(book: book)
-                    }
+            Group {
+                if layout == .list {
+                    listView
+                }else {
+                    gridView
                 }
-                .onDelete(perform: deleteBook)
             }
             .navigationTitle("Kütüphanem")
             .toolbar {
@@ -36,6 +34,13 @@ struct LibraryView: View {
                         showAddBook = true
                     } label: {
                         Image(systemName: "plus")
+                    }
+                }
+                ToolbarItem(placement: .navigationBarTrailing){
+                    Button {
+                        toggleLayout()
+                    } label: {
+                        Image(systemName: layout == .list ? "square.grid.2x2":"list.bullet")
                     }
                 }
             }
@@ -48,6 +53,45 @@ struct LibraryView: View {
     private func deleteBook(at offsets: IndexSet) {
         for index in offsets {
             modelContext.delete(books[index])
+        }
+    }
+    
+    private func toggleLayout() {
+        withAnimation {
+            layout = (layout == .list) ? .grid : .list
+        }
+    }
+    
+    private var listView: some View {
+        List {
+            ForEach(books) { book in
+                NavigationLink {
+                    BookDetailView(book: book)
+                } label: {
+                    BookRowView(book: book)
+                }
+            }
+            .onDelete(perform: deleteBook)
+        }
+    }
+    
+    private let gridColumns = [
+        GridItem(.flexible()),
+        GridItem(.flexible())
+    ]
+    
+    private var gridView: some View {
+        ScrollView {
+            LazyVGrid(columns: gridColumns, spacing: 16) {
+                ForEach(books) { book in
+                    NavigationLink {
+                        BookDetailView(book: book)
+                    } label: {
+                        BookGridItemView(book: book)
+                    }
+                }
+            }
+            .padding()
         }
     }
 }
