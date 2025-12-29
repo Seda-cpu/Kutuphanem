@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftData
+import PhotosUI
 
 struct AddBookView: View {
     
@@ -21,8 +22,9 @@ struct AddBookView: View {
     @State private var readingStatus: ReadingStatus = .toRead
     @State private var note = ""
     
-    
-    
+    @State private var selectedImageItem: PhotosPickerItem?
+    @State private var selectedUIImage: UIImage?
+
     var body: some View {
         NavigationStack {
             Form {
@@ -49,6 +51,38 @@ struct AddBookView: View {
 //                    }
 //                }
                 
+                VStack(spacing: 12) {
+
+                    // Kapak önizleme
+                    if let image = selectedUIImage {
+                        Image(uiImage: image)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(height: 220)
+                            .cornerRadius(12)
+                    } else {
+                        RoundedRectangle(cornerRadius: 12)
+                            .fill(Color.gray.opacity(0.2))
+                            .frame(height: 220)
+                            .overlay(
+                                Image(systemName: "book")
+                                    .font(.largeTitle)
+                                    .foregroundColor(.secondary)
+                            )
+                    }
+
+                    // Kapak seç
+                    PhotosPicker(
+                        selection: $selectedImageItem,
+                        matching: .images,
+                        photoLibrary: .shared()
+                    ) {
+                        Text(selectedUIImage == nil ? "Kapak Ekle" : "Kapağı Değiştir")
+                            .foregroundColor(.blue)
+                    }
+                }
+                
+                
                 Section(header: Text("Not")) {
                     TextEditor(text: $note).frame(minHeight: 100)
                 }
@@ -67,10 +101,18 @@ struct AddBookView: View {
                     .disabled(title.trimmingCharacters(in: .whitespaces).isEmpty)
                 }
             }
+            .onChange(of: selectedImageItem){
+                loadSelectedImage()
+            }
         }
     }
     
     private func saveBook() {
+        var coverFileName: String?
+        
+        if let image = selectedUIImage {
+            coverFileName = ImageStorage.saveImage(image)
+        }
         let owned = (context == .library)
 
         let book = Book(
@@ -78,12 +120,25 @@ struct AddBookView: View {
             author: author,
             isOwned: owned,
             readingStatus: owned ? readingStatus : .toRead,
-            note: note.isEmpty ? nil : note
+            note: note.isEmpty ? nil : note,
+            coverImageName: coverFileName
         )
 
         modelContext.insert(book)
         dismiss()
     }
+    
+    private func loadSelectedImage() {
+        guard let selectedImageItem else { return }
+
+        Task {
+            if let data = try? await selectedImageItem.loadTransferable(type: Data.self),
+               let image = UIImage(data: data) {
+                selectedUIImage = image
+            }
+        }
+    }
+
 
     
     
@@ -100,5 +155,4 @@ struct AddBookView: View {
 //        dismiss()
 //    }
 }
-
 

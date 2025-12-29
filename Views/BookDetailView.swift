@@ -5,18 +5,32 @@
 //  Created by Sedanur Kırcı on 28.12.2025.
 //
 import SwiftUI
+import SwiftData
+import PhotosUI
 
 struct BookDetailView: View {
     
     @Bindable var book: Book
+    @State private var selectedItem: PhotosPickerItem?
     
     var body: some View {
         Form {
             
             Section {
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(Color.gray.opacity(0.3))
-                    .frame(height: 200)
+                VStack {
+                    coverView
+                        .frame(height: 220)
+                        .cornerRadius(12)
+                    
+                    PhotosPicker(
+                        selection: $selectedItem,
+                        matching: .images,
+                        photoLibrary: .shared()
+                    ) {
+                        Text(book.coverImageName == nil ? "Kapak Ekle" : "Kapağı Değiştir")
+                            .foregroundColor(.blue)
+                    }
+                }
             }
             
             Section("Kitap Bilgileri") {
@@ -40,6 +54,42 @@ struct BookDetailView: View {
                 .frame(minHeight: 100)
             }
         }
-        .navigationTitle("Kitap Detayı")
+        .navigationTitle("Kitap Detayı").onChange(of: selectedItem){
+            loadSelectedImage()
+        }
     }
+    
+    @ViewBuilder
+    private var coverView: some View {
+        if let name = book.coverImageName,
+           let image = ImageStorage.loadImage(named: name) {
+            Image(uiImage: image)
+                .resizable()
+                .scaledToFit()
+        } else {
+            RoundedRectangle(cornerRadius: 12)
+                .fill(Color.gray.opacity(0.2))
+                .overlay(
+                    Image(systemName: "book")
+                        .font(.largeTitle)
+                        .foregroundColor(.secondary)
+                )
+        }
+    }
+
+    // MARK: - Load Image
+    private func loadSelectedImage() {
+        guard let selectedItem else { return }
+
+        Task {
+            if let data = try? await selectedItem.loadTransferable(type: Data.self),
+               let image = UIImage(data: data),
+               let fileName = ImageStorage.saveImage(image) {
+
+                book.coverImageName = fileName
+                // SwiftData otomatik kaydeder
+            }
+        }
+    }
+    
 }

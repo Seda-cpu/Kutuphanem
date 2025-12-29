@@ -8,9 +8,19 @@ struct BookRowView: View {
         HStack(spacing: 12) {
             
             // Kapak placeholder
-            RoundedRectangle(cornerRadius: 6)
-                .fill(Color.gray.opacity(0.3))
-                .frame(width: 40, height: 60)
+            if let name = book.coverImageName,
+               let image = ImageStorage.loadImage(named: name) {
+                Image(uiImage: image)
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: 40, height: 60)
+                    .clipped()
+                    .cornerRadius(6)
+            } else {
+                RoundedRectangle(cornerRadius: 6)
+                    .fill(Color.gray.opacity(0.3))
+                    .frame(width: 40, height: 60)
+            }
             
             VStack(alignment: .leading, spacing: 4) {
                 Text(book.title)

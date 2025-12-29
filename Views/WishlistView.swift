@@ -22,13 +22,7 @@ struct WishlistView: View {
         NavigationStack {
             List {
                 ForEach(wishlist) { book in
-                    VStack(alignment: .leading) {
-                        Text(book.title)
-                            .font(.headline)
-
-                        Text(book.author)
-                            .foregroundColor(.secondary)
-                    }
+                    BookRowView(book: book)
                     .swipeActions(edge: .trailing, allowsFullSwipe: false) {
 
                         // 🟢 KÜTÜPHANEYE TAŞI
@@ -48,7 +42,7 @@ struct WishlistView: View {
                     }
                 }
             }
-            .navigationTitle("İstek Listesi")
+            .navigationTitle("İstek Listem")
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button {
