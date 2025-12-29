@@ -23,8 +23,10 @@ struct LibraryView: View {
             Group {
                 if layout == .list {
                     listView
+                        .transition(.libraryLayout)
                 }else {
                     gridView
+                        .transition(.libraryLayout)
                 }
             }
             .navigationTitle("Kütüphanem")
@@ -47,6 +49,7 @@ struct LibraryView: View {
             .sheet(isPresented: $showAddBook) {
                 AddBookView(context: .library)
             }
+            .animation(.easeInOut(duration: 0.22), value: layout)
         }
     }
     
@@ -57,7 +60,7 @@ struct LibraryView: View {
     }
     
     private func toggleLayout() {
-        withAnimation {
+        withAnimation(.easeInOut(duration: 0.22)) {
             layout = (layout == .list) ? .grid : .list
         }
     }
@@ -92,6 +95,19 @@ struct LibraryView: View {
                 }
             }
             .padding()
+            .animation(.easeInOut(duration: 0.25), value: books)
         }
+    }
+    
+    
+}
+extension AnyTransition {
+    static var libraryLayout: AnyTransition {
+        .asymmetric(
+            insertion: .opacity
+                .combined(with: .scale(scale: 0.98)),
+            removal: .opacity
+                .combined(with: .scale(scale: 1.02))
+        )
     }
 }
