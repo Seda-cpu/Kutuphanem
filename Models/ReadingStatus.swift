@@ -11,7 +11,7 @@ enum ReadingStatus: String, CaseIterable, Identifiable, Codable {
     case toRead = "Okuyacağım"
     case reading = "Okuyorum"
     case finished = "Okudum"
-    case abondoned = "Yarım bıraktım"
+    case abandoned = "Yarım bıraktım"
     
     var id: String { rawValue }
 }
