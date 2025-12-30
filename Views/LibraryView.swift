@@ -21,13 +21,21 @@ struct LibraryView: View {
     var body: some View {
         NavigationStack {
             Group {
-                if layout == .list {
-                    listView
-                        .transition(.libraryLayout)
-                }else {
-                    gridView
-                        .transition(.libraryLayout)
+                
+                
+                if books.isEmpty {
+                    EmptyStateView(icon: "books.vertical", title: "Kütüphanen boş", message: "Henüz kütüphanene kitap eklemedin.", actionTitle: "Kitap Ekle") {
+                        showAddBook = true
+                    }
+                } else {
+                    if layout == .list {
+                        listView.transition(.libraryLayout)
+                    }else {
+                        gridView
+                            .transition(.libraryLayout)
+                    }
                 }
+
             }
             .navigationTitle("Kütüphanem")
             .toolbar {

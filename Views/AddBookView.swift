@@ -22,6 +22,9 @@ struct AddBookView: View {
     @State private var readingStatus: ReadingStatus = .toRead
     @State private var note = ""
     
+    @State private var isbn = ""
+    @State private var pageCount = ""
+    
     @State private var selectedImageItem: PhotosPickerItem?
     @State private var selectedUIImage: UIImage?
 
@@ -31,6 +34,9 @@ struct AddBookView: View {
                 Section(header: Text("Kitap Bilgileri")) {
                     TextField("Kitap adi", text: $title)
                     TextField("Yazar", text: $author)
+                    TextField("ISBN (opsiyonel)", text: $isbn).keyboardType(.numberPad)
+                    TextField("Sayfa sayısı (opsiyonel)", text: $pageCount)
+                            .keyboardType(.numberPad)
                 }
                 
                 if context == .library {
@@ -43,13 +49,7 @@ struct AddBookView: View {
                     }
                 }
                 
-//                Section(header: Text("Durum")) {
-//                    Toggle("Sahibim", isOn: $isOwned)
-//                    
-//                    Picker("Okuma Durumu", selection: $readingStatus) {
-//                        ForEach(ReadingStatus.allCases) {status in Text(status.rawValue).tag(status)}
-//                    }
-//                }
+
                 
                 VStack(spacing: 12) {
 
@@ -120,6 +120,8 @@ struct AddBookView: View {
             author: author,
             isOwned: owned,
             readingStatus: owned ? readingStatus : .toRead,
+            isbn: isbn.isEmpty ? nil : isbn,
+            pageCount: Int(pageCount),
             note: note.isEmpty ? nil : note,
             coverImageName: coverFileName
         )
