@@ -15,8 +15,19 @@ struct LibraryView: View {
     @Query(filter: #Predicate<Book> { $0.isOwned == true })
     private var books: [Book]
     
-    @State private var showAddBook = false
     @State private var layout: LibraryLayout = .list
+    @State private var scannedISBN: String = ""
+    
+    enum ActiveSheet: Identifiable {
+        case addBook
+        case barcode
+
+        var id: Int { hashValue }
+    }
+    
+    @State private var activeSheet: ActiveSheet?
+   
+
     
     var body: some View {
         NavigationStack {
@@ -25,7 +36,8 @@ struct LibraryView: View {
                 
                 if books.isEmpty {
                     EmptyStateView(icon: "books.vertical", title: "Kütüphanen boş", message: "Henüz kütüphanene kitap eklemedin.", actionTitle: "Kitap Ekle") {
-                        showAddBook = true
+                        scannedISBN = ""
+                        activeSheet = .addBook
                     }
                 } else {
                     if layout == .list {
@@ -40,25 +52,54 @@ struct LibraryView: View {
             .navigationTitle("Kütüphanem")
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button {
-                        showAddBook = true
+                    Menu {
+                        Button {
+                            scannedISBN = ""
+                            activeSheet = .addBook
+                        } label: {
+                            Label("Manuel Ekle", systemImage: "square.and.pencil")
+                        }
+
+                        Button {
+                            activeSheet = .barcode
+                        } label: {
+                            Label("Barkod ile Ekle", systemImage: "barcode.viewfinder")
+                        }
                     } label: {
                         Image(systemName: "plus")
                     }
                 }
-                ToolbarItem(placement: .navigationBarTrailing){
+
+                ToolbarItem(placement: .navigationBarTrailing) {
                     Button {
                         toggleLayout()
                     } label: {
-                        Image(systemName: layout == .list ? "square.grid.2x2":"list.bullet")
+                        Image(systemName: layout == .list ? "square.grid.2x2" : "list.bullet")
                     }
                 }
             }
-            .sheet(isPresented: $showAddBook) {
-                AddBookView(context: .library)
+            .sheet(item: $activeSheet) { sheet in
+                switch sheet {
+
+                case .barcode:
+                    BarcodeScannerView { isbn in
+                        scannedISBN = isbn
+                        activeSheet = .addBook
+                    }
+
+                case .addBook:
+                    AddBookView(
+                        context: .library,
+                        isbn: $scannedISBN    // ⭐ binding
+                    )
+                }
             }
             .animation(.easeInOut(duration: 0.22), value: layout)
+            
         }
+        
+        
+        
     }
     
     private func deleteBook(at offsets: IndexSet) {

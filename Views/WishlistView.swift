@@ -15,7 +15,15 @@ struct WishlistView: View {
     @Query(filter: #Predicate<Book> { $0.isOwned == false })
     private var wishlist: [Book]
 
-    @State private var showAddBook = false
+    @State private var scannedISBN: String = ""
+
+    enum ActiveSheet: Identifiable {
+        case addBook
+        case barcode
+        var id: Int { hashValue }
+    }
+
+    @State private var activeSheet: ActiveSheet?
 
     var body: some View {
         NavigationStack {
@@ -27,7 +35,8 @@ struct WishlistView: View {
                         message: "Okumak istediğin kitapları buraya ekleyebilirsin.",
                         actionTitle: "Kitap Ekle"
                     ) {
-                        showAddBook = true
+                        scannedISBN = ""
+                        activeSheet = .addBook
                     }
                 } else {
                     List {
@@ -57,20 +66,48 @@ struct WishlistView: View {
             .navigationTitle("İstek Listem")
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button {
-                        showAddBook = true
+                    Menu {
+                        Button {
+                            scannedISBN = ""
+                            activeSheet = .addBook
+                        } label: {
+                            Label("Manuel Ekle", systemImage: "square.and.pencil")
+                        }
+
+                        Button {
+                            activeSheet = .barcode
+                        } label: {
+                            Label("Barkod ile Ekle", systemImage: "barcode.viewfinder")
+                        }
                     } label: {
                         Image(systemName: "plus")
                     }
                 }
             }
-            .sheet(isPresented: $showAddBook) {
-                AddBookView(context: .wishlist)
+            .sheet(item: $activeSheet) { sheet in
+                switch sheet {
+
+                case .barcode:
+                    BarcodeScannerView { isbn in
+                        scannedISBN = isbn
+                        activeSheet = .addBook
+                    }
+
+                case .addBook:
+                    AddBookView(
+                        context: .wishlist,
+                        isbn: $scannedISBN
+                    )
+                }
             }
+            
         }
+       
+        
+        
     }
 
-    // MARK: - Actions
+    // MARK: - Actionsq
 
     private func moveToLibrary(_ book: Book) {
         book.isOwned = true

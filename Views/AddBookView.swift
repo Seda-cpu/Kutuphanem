@@ -16,13 +16,16 @@ struct AddBookView: View {
     
     let context: AddBookContext
     
+    @Binding var isbn: String
+    
     @State private var title = ""
     @State private var author = ""
     @State private var isOwned = true
     @State private var readingStatus: ReadingStatus = .toRead
     @State private var note = ""
     
-    @State private var isbn = ""
+    
+    
     @State private var pageCount = ""
     
     @State private var selectedImageItem: PhotosPickerItem?
@@ -101,10 +104,13 @@ struct AddBookView: View {
                     .disabled(title.trimmingCharacters(in: .whitespaces).isEmpty)
                 }
             }
+            
             .onChange(of: selectedImageItem){
                 loadSelectedImage()
             }
+            
         }
+        
     }
     
     private func saveBook() {
