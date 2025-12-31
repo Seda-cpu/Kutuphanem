@@ -108,6 +108,10 @@ struct AddBookView: View {
             .onChange(of: selectedImageItem){
                 loadSelectedImage()
             }
+            .task(id: isbn) {
+                print("🔁 TASK TETIKLENDI - ISBN:", isbn)
+                fetchMetadataIfNeeded()
+            }
             
         }
         
@@ -148,19 +152,44 @@ struct AddBookView: View {
     }
 
 
-    
-    
-//    private func saveBook() {
-//        let book = Book(
-//            title: title,
-//            author: author,
-//            isOwned: isOwned,
-//            readingStatus: readingStatus,
-//            note: note.isEmpty ? nil : note
-//        )
-//        modelContext.insert(book)
-//        
-//        dismiss()
-//    }
+    private func fetchMetadataIfNeeded() {
+        guard !isbn.isEmpty else {
+            print("⛔️ ISBN boş, fetch iptal")
+            return
+        }
+
+        print("🔍 Google Books fetch başlıyor. ISBN:", isbn)
+
+        Task {
+            do {
+                let result = try await GoogleBooksService.shared.fetchBook(isbn: isbn)
+
+                guard let metadata = result else {
+                    print("⚠️ Google Books: kitap bulunamadı")
+                    return
+                }
+
+                print("✅ Metadata geldi:")
+                print("   📕 title:", metadata.title)
+                print("   ✍️ author:", metadata.author)
+                print("   📄 pageCount:", metadata.pageCount ?? -1)
+
+                if title.isEmpty {
+                    title = metadata.title
+                }
+
+                if author.isEmpty {
+                    author = metadata.author
+                }
+
+                if pageCount.isEmpty, let count = metadata.pageCount {
+                    pageCount = String(count)
+                }
+
+            } catch {
+                print("❌ Google Books error:", error)
+            }
+        }
+    }
 }
 
