@@ -56,28 +56,23 @@ class Book {
     }
     
 }
+extension Book {
 
+    var readingProgress: Double? {
+        guard
+            ReadingStatus == .reading,
+            let currentPage,
+            let pageCount,
+            pageCount > 0
+        else {
+            return nil
+        }
 
+        return min(Double(currentPage) / Double(pageCount), 1.0)
+    }
 
-
-//struct Book: Identifiable {
-//    var id: UUID
-//    
-//    var title: String
-//    var author: String
-//    
-//    var isOwned: Bool
-//    var ReadingStatus: ReadingStatus
-//    var note: String?
-//    var coverImageName: String?
-//    
-//    init(id: UUID = UUID(), title: String, author: String, isOwned: Bool, readingStatus: ReadingStatus, note: String? = nil, coverImageName: String? = nil) {
-//        self.id = id
-//        self.title = title
-//        self.author = author
-//        self.isOwned = isOwned
-//        self.ReadingStatus = readingStatus
-//        self.note = note
-//        self.coverImageName = coverImageName
-//    }
-//}
+    var readingProgressText: String? {
+        guard let progress = readingProgress else { return nil }
+        return "%\(Int(progress * 100))"
+    }
+}

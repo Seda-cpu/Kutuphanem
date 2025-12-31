@@ -12,7 +12,8 @@ struct BookDetailView: View {
     
     @Bindable var book: Book
     @State private var selectedItem: PhotosPickerItem?
-    
+    @FocusState private var isPageFieldFocused: Bool
+
     var body: some View {
         Form {
             
@@ -39,12 +40,57 @@ struct BookDetailView: View {
             }
             
             Section("Okuma Durumu") {
+                
                 Picker("Durum", selection: $book.ReadingStatus) {
                     ForEach(ReadingStatus.allCases) { status in
                         Text(status.rawValue).tag(status)
                     }
                 }
             }
+            
+            if book.ReadingStatus == .reading {
+                Section("Okuma İlerlemesi") {
+
+                    if let pageCount = book.pageCount {
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("Kaçıncı sayfadasın?")
+                                .font(.subheadline)
+
+                            TextField("Örn: 135", text: Binding(
+                                get: { book.currentPage.map(String.init) ?? "" },
+                                set: { book.currentPage = Int($0) }
+                            ))
+                            .keyboardType(.numberPad)
+                            .focused($isPageFieldFocused)
+                            .padding(10)
+                            .background(
+                                RoundedRectangle(cornerRadius: 8)
+                                    .fill(Color(.secondarySystemBackground))
+                            )
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 8)
+                                    .stroke(Color.blue.opacity(0.4))
+                            )
+                            
+                            Text("Toplam \(pageCount) sayfa")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+
+                            if let percent = book.readingProgressText {
+                                ProgressView(value: book.readingProgress)
+                                Text(percent)
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                    } else {
+                        Text("Okuma yüzdesi için önce toplam sayfa sayısını girmelisin.")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                }
+            }
+            
             
             Section("Notlarım") {
                 TextEditor(text: Binding(
@@ -57,6 +103,15 @@ struct BookDetailView: View {
         .navigationTitle("Kitap Detayı").onChange(of: selectedItem){
             loadSelectedImage()
         }
+        .toolbar {
+            ToolbarItemGroup(placement: .keyboard) {
+                Spacer()
+                Button("Bitti") {
+                    isPageFieldFocused = false
+                }
+            }
+        }
+        
     }
     
     @ViewBuilder

@@ -30,9 +30,17 @@ struct BookRowView: View {
                     .font(.subheadline)
                     .foregroundColor(.secondary)
                 
-                Text(book.ReadingStatus.rawValue)
-                    .font(.caption)
-                    .foregroundColor(.blue)
+                HStack(spacing: 6) {
+                    Text(book.ReadingStatus.rawValue)
+                        .font(.caption)
+                        .foregroundColor(.blue)
+
+                    if let percent = book.readingProgressText {
+                        Text(percent)
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                }
             }
         }
         .padding(.vertical, 4)

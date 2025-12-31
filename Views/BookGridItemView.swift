@@ -27,6 +27,15 @@ struct BookGridItemView: View {
                 .font(.subheadline)
                 .lineLimit(2)
                 .multilineTextAlignment(.center)
+            
+            
+            if let percent = book.readingProgressText {
+                Text(percent)
+                    .font(.caption2)
+                    .padding(4)
+                    .background(.ultraThinMaterial)
+                    .cornerRadius(6)
+            }
         }
     }
 
@@ -60,5 +69,9 @@ struct BookGridItemView: View {
                 Circle().fill(book.ReadingStatus.badgeColor)
             )
             .accessibilityLabel(book.ReadingStatus.rawValue)
+        
+        
     }
+    
+    
 }
