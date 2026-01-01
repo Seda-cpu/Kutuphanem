@@ -18,8 +18,8 @@ struct ContentView: View {
                 Label("İstek Listem", systemImage: "star")
             }
             
-            SettingsView().tabItem{
-                Label("Ayarlar", systemImage: "gearshape")
+            ProfileView().tabItem{
+                Label("Profile", systemImage: "person.crop.circle")
             }
         }
     }

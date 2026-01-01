@@ -18,6 +18,8 @@ struct LibraryView: View {
     @State private var layout: LibraryLayout = .list
     @State private var scannedISBN: String = ""
     
+    @AppStorage("defaultLibraryLayout") private var defaultLibraryLayout: String = "list"
+    
     enum ActiveSheet: Identifiable {
         case addBook
         case barcode
@@ -48,6 +50,9 @@ struct LibraryView: View {
                     }
                 }
 
+            }
+            .onAppear {
+                layout = (defaultLibraryLayout == "grid") ? .grid : .list
             }
             .navigationTitle("Kütüphanem")
             .toolbar {
@@ -111,6 +116,7 @@ struct LibraryView: View {
     private func toggleLayout() {
         withAnimation(.easeInOut(duration: 0.22)) {
             layout = (layout == .list) ? .grid : .list
+            defaultLibraryLayout = (layout == .grid) ? "grid" : "list"
         }
     }
     
