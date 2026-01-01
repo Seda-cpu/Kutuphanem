@@ -13,7 +13,10 @@ struct BookDetailView: View {
     @Bindable var book: Book
     @State private var selectedItem: PhotosPickerItem?
     @FocusState private var isPageFieldFocused: Bool
-
+    @FocusState private var isPageCountFieldFocused: Bool
+    @State private var isEditingPageCount = false
+    
+    
     var body: some View {
         Form {
             
@@ -37,6 +40,57 @@ struct BookDetailView: View {
             Section("Kitap Bilgileri") {
                 Text(book.title)
                 Text(book.author).foregroundColor(.secondary)
+            }
+            
+            Section("Sayfa Bilgisi") {
+
+                
+                if isEditingPageCount {
+
+                    TextField(
+                        "Örn: 320",
+                        text: Binding(
+                            get: { book.pageCount.map(String.init) ?? "" },
+                            set: { book.pageCount = Int($0) }
+                        )
+                    )
+                    .keyboardType(.numberPad)
+                    .focused($isPageCountFieldFocused)
+                    .padding(10)
+                    .background(
+                        RoundedRectangle(cornerRadius: 8)
+                            .fill(Color(.secondarySystemBackground))
+                    )
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 8)
+                            .stroke(Color.blue.opacity(0.4))
+                    )
+                    .onAppear {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                            isPageCountFieldFocused = true
+                        }
+                    }
+
+                } else {
+
+                    HStack {
+                        Text("Toplam Sayfa")
+                        Spacer()
+
+                        if let pageCount = book.pageCount {
+                            Text("\(pageCount)")
+                                .foregroundColor(.primary)
+                        } else {
+                            Text("Belirtilmedi")
+                                .foregroundColor(.secondary)
+                        }
+                    }
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        isEditingPageCount = true
+                    }
+                }
+                
             }
             
             Section("Okuma Durumu") {
@@ -108,6 +162,8 @@ struct BookDetailView: View {
                 Spacer()
                 Button("Bitti") {
                     isPageFieldFocused = false
+                    isPageCountFieldFocused = false
+                    isEditingPageCount = false
                 }
             }
         }
