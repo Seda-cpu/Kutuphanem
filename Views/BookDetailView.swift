@@ -17,6 +17,7 @@ struct BookDetailView: View {
     @FocusState private var isPageCountFieldFocused: Bool
     @State private var isEditingPageCount = false
     @AppStorage("autoMarkFinished") private var autoMarkFinished: Bool = false
+    @State private var showAddQuoteSheet = false
     
     var body: some View {
         Form {
@@ -147,6 +148,24 @@ struct BookDetailView: View {
                 }
             }
             
+            Button {
+                showAddQuoteSheet = true
+            } label: {
+                HStack {
+                    Image(systemName: "quote.opening")
+                    Text("Alıntı Ekle")
+                        .fontWeight(.medium)
+                    Spacer()
+                    Image(systemName: "plus.circle.fill")
+                }
+                .padding()
+                .background(
+                    RoundedRectangle(cornerRadius: 14)
+                        .fill(Color(.secondarySystemBackground))
+                )
+            }
+            .buttonStyle(.plain)
+            
             
             Section("Notlarım") {
                 TextEditor(text: Binding(
@@ -168,6 +187,9 @@ struct BookDetailView: View {
                     isEditingPageCount = false
                 }
             }
+        }
+        .sheet(isPresented: $showAddQuoteSheet) {
+            AddQuoteView(book: book)
         }
         
     }

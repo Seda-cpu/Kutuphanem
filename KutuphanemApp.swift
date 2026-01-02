@@ -15,6 +15,6 @@ struct KutuphanemApp: App {
         WindowGroup {
             ContentView()
         }
-        .modelContainer(for: Book.self)
+        .modelContainer(for: [Book.self, FeedItem.self])
     }
 }

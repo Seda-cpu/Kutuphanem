@@ -14,6 +14,7 @@ struct ProfileView: View {
     
     
     @Query private var books: [Book]
+    @Query(sort: \FeedItem.createdAt, order: .reverse) private var feedItems: [FeedItem]
     @State private var exportURL: URL?
     @State private var showExporter = false
     
@@ -22,6 +23,9 @@ struct ProfileView: View {
     @AppStorage("autoMarkFinished") private var autoMarkFinished: Bool = false
     
     @State private var isEditingName = false
+    @State private var showBadgesSheet = false
+    @State private var statsExpanded: Bool = true
+    
     
     var body: some View {
         NavigationStack {
@@ -32,8 +36,7 @@ struct ProfileView: View {
 
                     statsGrid
 
-                    personalizationCard
-
+                    feedSection
                     // İleride buraya “Ayarlar” section’ları koyacağız.
                     // Örn: export, theme, backup, vs.
                 }
@@ -43,13 +46,38 @@ struct ProfileView: View {
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Menu {
+
+                        Section("Görünüm") {
+                            Button {
+                                defaultLibraryLayout = "list"
+                            } label: {
+                                Label("Liste", systemImage: defaultLibraryLayout == "list" ? "checkmark" : "")
+                            }
+
+                            Button {
+                                defaultLibraryLayout = "grid"
+                            } label: {
+                                Label("Grid", systemImage: defaultLibraryLayout == "grid" ? "checkmark" : "")
+                            }
+                        }
+
+                        Toggle(isOn: $autoMarkFinished) {
+                            Text("%100 olunca otomatik 'Okudum'")
+                        }
+
+                        Divider()
+
                         Button("Dışa Aktar (JSON)") {
                             exportBooks()
                         }
+
                     } label: {
                         Image(systemName: "ellipsis.circle")
                     }
                 }
+            }
+            .sheet(isPresented: $showBadgesSheet) {
+                ReadingBadgesView(currentBadge: currentReadingBadge, totalPagesRead: pagesReadTotal)
             }
         }
         .fileExporter(
@@ -86,9 +114,19 @@ struct ProfileView: View {
                             .font(.title2.weight(.semibold))
                     }
 
-                    Text("\(currentReadingBadge.emoji) \(currentReadingBadge.title)")
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
+                    Button {
+                        showBadgesSheet = true
+                    } label: {
+                        HStack(spacing: 4) {
+                            Text("\(currentReadingBadge.emoji) \(currentReadingBadge.title)")
+                                .font(.subheadline)
+
+                            Image(systemName: "chevron.right")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
+                    }
+                    .buttonStyle(.plain)
                 }
 
                 Spacer()
@@ -115,12 +153,39 @@ struct ProfileView: View {
         )
     }
     
-    
-    private var statsGrid: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Text("İstatistikler")
+    private var feedSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+
+            Text("Akış")
                 .font(.headline)
 
+            if feedItems.isEmpty {
+                Text("Henüz alıntı veya inceleme yok.")
+                    .font(.footnote)
+                    .foregroundColor(.secondary)
+                    .padding(.vertical, 20)
+            } else {
+                VStack(spacing: 12) {
+                    ForEach(feedItems) { item in
+                        FeedItemCard(item: item)
+                    }
+                }
+            }
+        }
+        .padding()
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(Color(.secondarySystemBackground))
+        )
+    }
+    
+    
+    
+    private var statsGrid: some View {
+        DisclosureGroup(
+            isExpanded: $statsExpanded
+        ) {
             LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
                 statTile(title: "Toplam", value: "\(totalCount)", systemImage: "books.vertical")
                 statTile(title: "Okudum", value: "\(finishedCount)", systemImage: "checkmark.circle")
@@ -129,6 +194,10 @@ struct ProfileView: View {
                 statTile(title: "Okunan Sayfa", value: "\(pagesReadTotal)", systemImage: "text.book.closed")
                 statTile(title: "Yarım Bıraktım", value: "\(abandonedCount)", systemImage: "xmark.circle")
             }
+            .padding(.top, 8)
+        } label: {
+            Text("İstatistikler")
+                .font(.headline)
         }
         .padding()
         .background(
@@ -160,29 +229,7 @@ struct ProfileView: View {
         )
     }
     
-    private var personalizationCard: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("Kişiselleştirme")
-                .font(.headline)
-
-            Picker("Varsayılan görünüm", selection: $defaultLibraryLayout) {
-                Text("Liste").tag("list")
-                Text("Grid").tag("grid")
-            }
-            .pickerStyle(.segmented)
-
-            Toggle(" %100 olunca otomatik 'Okudum' yap", isOn: $autoMarkFinished)
-
-            Text("Bu ayarları birazdan Kütüphanem ekranına bağlayacağız.")
-                .font(.footnote)
-                .foregroundColor(.secondary)
-        }
-        .padding()
-        .background(
-            RoundedRectangle(cornerRadius: 16)
-                .fill(Color(.secondarySystemBackground))
-        )
-    }
+    
     
     private var libraryBooks: [Book] {
         books.filter { $0.isOwned == true }

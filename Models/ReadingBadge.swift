@@ -50,6 +50,18 @@ enum ReadingBadge: Identifiable {
         }
     }
     
+    var upperPageLimit: Int? {
+        switch self {
+        case .newReader: return 100
+        case .warmingUp: return 500
+        case .regularReader: return 1500
+        case .bookFriend: return 3000
+        case .bookWorm: return 6000
+        case .wiseReader: return nil
+        }
+    }
+    
+    
     static func badge(for totalPagesRead: Int) -> ReadingBadge {
         switch totalPagesRead {
         case 0..<100:
@@ -68,6 +80,10 @@ enum ReadingBadge: Identifiable {
     }
     
     
-    
+    func remainingPages(toReach totalPagesRead: Int) -> Int? {
+        guard let upperPageLimit else { return nil }
+        let remaining = upperPageLimit - totalPagesRead
+        return max(remaining, 0)
+    }
     
 }
