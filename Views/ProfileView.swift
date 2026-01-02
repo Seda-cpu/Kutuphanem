@@ -25,6 +25,8 @@ struct ProfileView: View {
     @State private var isEditingName = false
     @State private var showBadgesSheet = false
     @State private var statsExpanded: Bool = true
+    @Environment(\.modelContext) private var modelContext
+    @State private var editingItem: FeedItem?
     
     
     var body: some View {
@@ -78,6 +80,9 @@ struct ProfileView: View {
             }
             .sheet(isPresented: $showBadgesSheet) {
                 ReadingBadgesView(currentBadge: currentReadingBadge, totalPagesRead: pagesReadTotal)
+            }
+            .sheet(item: $editingItem) { item in
+                EditQuoteView(item: item)
             }
         }
         .fileExporter(
@@ -167,7 +172,7 @@ struct ProfileView: View {
             } else {
                 VStack(spacing: 12) {
                     ForEach(feedItems) { item in
-                        FeedItemCard(item: item)
+                        FeedItemCard(item: item, onEdit: {startEditing(item)}, onDelete: {delete(item)})
                     }
                 }
             }
@@ -298,6 +303,14 @@ struct ProfileView: View {
         } catch {
             print("❌ Export hatası:", error)
         }
+    }
+    
+    private func delete(_ item: FeedItem) {
+        modelContext.delete(item)
+    }
+    
+    private func startEditing(_ item: FeedItem) {
+        editingItem = item
     }
     
 }

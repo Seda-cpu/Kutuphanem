@@ -10,6 +10,9 @@ import SwiftUI
 struct FeedItemCard: View {
     
     let item: FeedItem
+    let onEdit: () -> Void
+    let onDelete: () -> Void
+    
     
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -39,6 +42,24 @@ struct FeedItemCard: View {
             RoundedRectangle(cornerRadius: 14)
                 .fill(Color(.systemBackground))
         )
+        .contextMenu {
+            Button {
+                onEdit()
+            } label: {
+                Label("Düzenle", systemImage: "pencil")
+            }
+
+            Button(role: .destructive) {
+                onDelete()
+            } label: {
+                Label("Sil", systemImage: "trash")
+            }
+        }
         
     }
+    
+    
+    
+    
+    
 }
