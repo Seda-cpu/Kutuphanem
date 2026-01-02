@@ -20,7 +20,9 @@ class FeedItem {
     var page: Int?
     var book: Book?
     var createdAt: Date
-
+    
+    var bookTitle: String?
+    
     init(
         kind: Kind,
         text: String,

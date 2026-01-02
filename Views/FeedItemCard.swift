@@ -25,8 +25,8 @@ struct FeedItemCard: View {
                 }
 
                 //kitap adi simdilik gosterilmiyor.
-                if let page = item.page {
-                    Text("s. \(page)")
+                if let title = item.bookTitle, !title.isEmpty {
+                    Text("· \(title)")
                 }
             }
             .font(.caption)

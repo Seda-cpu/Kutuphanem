@@ -78,7 +78,9 @@ struct AddFeedItemView: View {
             page: kind == .quote ? Int(pageText) : nil,
             book: selectedBook
         )
-
+        
+        item.bookTitle = selectedBook?.title
+        
         modelContext.insert(item)
         dismiss()
     }
