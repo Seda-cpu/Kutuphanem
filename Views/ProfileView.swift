@@ -28,62 +28,74 @@ struct ProfileView: View {
     @Environment(\.modelContext) private var modelContext
     @State private var editingItem: FeedItem?
     
+    @State private var showAddMenu = false
+    @State private var showAddSheet = false
+    @State private var addKind: FeedItem.Kind = .quote
     
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(spacing: 16) {
+            ZStack (alignment: .bottomTrailing) {
+                ScrollView {
+                    VStack(spacing: 16) {
 
-                    headerCard
+                        headerCard
 
-                    statsGrid
+                        statsGrid
 
-                    feedSection
-                    // İleride buraya “Ayarlar” section’ları koyacağız.
-                    // Örn: export, theme, backup, vs.
+                        feedSection
+                        // İleride buraya “Ayarlar” section’ları koyacağız.
+                        // Örn: export, theme, backup, vs.
+                    }
+                    .padding()
                 }
-                .padding()
-            }
-            .navigationTitle("Profile")
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Menu {
+                .navigationTitle("Profile")
+                .toolbar {
+                    ToolbarItem(placement: .navigationBarTrailing) {
+                        Menu {
 
-                        Section("Görünüm") {
-                            Button {
-                                defaultLibraryLayout = "list"
-                            } label: {
-                                Label("Liste", systemImage: defaultLibraryLayout == "list" ? "checkmark" : "")
+                            Section("Görünüm") {
+                                Button {
+                                    defaultLibraryLayout = "list"
+                                } label: {
+                                    Label("Liste", systemImage: defaultLibraryLayout == "list" ? "checkmark" : "")
+                                }
+
+                                Button {
+                                    defaultLibraryLayout = "grid"
+                                } label: {
+                                    Label("Grid", systemImage: defaultLibraryLayout == "grid" ? "checkmark" : "")
+                                }
                             }
 
-                            Button {
-                                defaultLibraryLayout = "grid"
-                            } label: {
-                                Label("Grid", systemImage: defaultLibraryLayout == "grid" ? "checkmark" : "")
+                            Toggle(isOn: $autoMarkFinished) {
+                                Text("%100 olunca otomatik 'Okudum'")
                             }
+
+                            Divider()
+
+                            Button("Dışa Aktar (JSON)") {
+                                exportBooks()
+                            }
+
+                        } label: {
+                            Image(systemName: "ellipsis.circle")
                         }
-
-                        Toggle(isOn: $autoMarkFinished) {
-                            Text("%100 olunca otomatik 'Okudum'")
-                        }
-
-                        Divider()
-
-                        Button("Dışa Aktar (JSON)") {
-                            exportBooks()
-                        }
-
-                    } label: {
-                        Image(systemName: "ellipsis.circle")
                     }
                 }
+                .sheet(isPresented: $showBadgesSheet) {
+                    ReadingBadgesView(currentBadge: currentReadingBadge, totalPagesRead: pagesReadTotal)
+                }
+                .sheet(item: $editingItem) { item in
+                    EditQuoteView(item: item)
+                }
+                
+                floatingAddButton
+                    .padding()
             }
-            .sheet(isPresented: $showBadgesSheet) {
-                ReadingBadgesView(currentBadge: currentReadingBadge, totalPagesRead: pagesReadTotal)
+            .sheet(isPresented: $showAddSheet) {
+                AddFeedItemView(kind: addKind)
             }
-            .sheet(item: $editingItem) { item in
-                EditQuoteView(item: item)
-            }
+            
         }
         .fileExporter(
             isPresented: $showExporter,
@@ -311,6 +323,76 @@ struct ProfileView: View {
     
     private func startEditing(_ item: FeedItem) {
         editingItem = item
+    }
+    
+    
+    private var floatingAddButton: some View {
+        ZStack(alignment: .bottomTrailing) {
+
+            if showAddMenu {
+                VStack(spacing: 12) {
+
+                    addAction(
+                        title: "Alıntı Ekle",
+                        icon: "quote.opening",
+                        color: .blue
+                    ) {
+                        addKind = .quote
+                        showAddMenu = false
+                        showAddSheet = true
+                    }
+
+                    addAction(
+                        title: "İnceleme Ekle",
+                        icon: "square.and.pencil",
+                        color: .purple
+                    ) {
+                        addKind = .review
+                        showAddMenu = false
+                        showAddSheet = true
+                    }
+
+                }
+                // 🔥 ANA NOKTA BURASI
+                .padding(.bottom, 70) // FAB yüksekliği + boşluk
+                .transition(.move(edge: .bottom).combined(with: .opacity))
+            }
+
+            Button {
+                withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+                    showAddMenu.toggle()
+                }
+            } label: {
+                Image(systemName: showAddMenu ? "xmark" : "plus")
+                    .font(.title)
+                    .foregroundColor(.white)
+                    .frame(width: 56, height: 56)
+                    .background(Circle().fill(Color.blue))
+                    .shadow(radius: 6)
+            }
+        }
+    }
+    
+    private func addAction(
+        title: String,
+        icon: String,
+        color: Color,
+        action: @escaping () -> Void
+    ) -> some View {
+        Button(action: action) {
+            HStack {
+                Text(title)
+                    .font(.subheadline)
+                Image(systemName: icon)
+            }
+            .padding(.horizontal, 14)
+            .padding(.vertical, 10)
+            .background(
+                Capsule()
+                    .fill(color.opacity(0.15))
+            )
+            .foregroundColor(color)
+        }
     }
     
 }
