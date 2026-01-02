@@ -34,29 +34,16 @@ struct BookPickerView: View {
                         selectedBook = book
                         dismiss()
                     } label: {
-                        HStack(spacing: 12) {
-
-                            BookThumbnailView(book: book)
-
-                            VStack(alignment: .leading, spacing: 4) {
-                                Text(book.title)
-                                    .font(.body)
-
-                                if !book.author.isEmpty {
-                                    Text(book.author)
-                                        .font(.caption)
-                                        .foregroundColor(.secondary)
-                                }
-                            }
+                        HStack {
+                            Text(book.title)
 
                             Spacer()
 
                             if selectedBook?.id == book.id {
-                                Image(systemName: "checkmark.circle.fill")
+                                Image(systemName: "checkmark")
                                     .foregroundColor(.blue)
                             }
                         }
-                        .padding(.vertical, 4)
                     }
                 }
             }

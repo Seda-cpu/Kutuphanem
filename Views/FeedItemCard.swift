@@ -13,7 +13,6 @@ struct FeedItemCard: View {
     let onEdit: () -> Void
     let onDelete: () -> Void
     
-    
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
 
@@ -25,8 +24,9 @@ struct FeedItemCard: View {
                     Text("s. \(page)")
                 }
 
-                if let book = item.book {
-                    Text("· \(book.title)")
+                //kitap adi simdilik gosterilmiyor.
+                if let page = item.page {
+                    Text("s. \(page)")
                 }
             }
             .font(.caption)
