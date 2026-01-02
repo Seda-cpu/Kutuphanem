@@ -7,6 +7,7 @@
 import SwiftUI
 import SwiftData
 import PhotosUI
+import UIKit
 
 struct BookDetailView: View {
     
@@ -15,7 +16,7 @@ struct BookDetailView: View {
     @FocusState private var isPageFieldFocused: Bool
     @FocusState private var isPageCountFieldFocused: Bool
     @State private var isEditingPageCount = false
-    
+    @AppStorage("autoMarkFinished") private var autoMarkFinished: Bool = false
     
     var body: some View {
         Form {
@@ -112,7 +113,8 @@ struct BookDetailView: View {
 
                             TextField("Örn: 135", text: Binding(
                                 get: { book.currentPage.map(String.init) ?? "" },
-                                set: { book.currentPage = Int($0) }
+                                set: { book.currentPage = Int($0)
+                                    checkAutoMarkFinished()}
                             ))
                             .keyboardType(.numberPad)
                             .focused($isPageFieldFocused)
@@ -202,5 +204,17 @@ struct BookDetailView: View {
             }
         }
     }
+    
+    private func checkAutoMarkFinished() {
+        guard autoMarkFinished else { return }
+        guard book.ReadingStatus == .reading else { return }
+        guard let progress = book.readingProgress else { return }
+
+        if progress >= 1.0 {
+            book.ReadingStatus = .finished
+            book.finishedAt = Date()
+        }
+    }
+  
     
 }

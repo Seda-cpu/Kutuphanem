@@ -86,7 +86,7 @@ struct ProfileView: View {
                             .font(.title2.weight(.semibold))
                     }
 
-                    Text(readerTypeText)
+                    Text("\(currentReadingBadge.emoji) \(currentReadingBadge.title)")
                         .font(.subheadline)
                         .foregroundColor(.secondary)
                 }
@@ -226,11 +226,8 @@ struct ProfileView: View {
         return sum
     }
     
-    private var readerTypeText: String {
-        if finishedCount >= 20 { return "📚 Kitap Kurdu" }
-        if finishedCount >= 5 { return "📘 Düzenli Okuyucu" }
-        if finishedCount >= 1 { return "🌱 Başlangıç" }
-        return "✨ Yeni Okur"
+    private var currentReadingBadge: ReadingBadge {
+        ReadingBadge.badge(for: pagesReadTotal)
     }
     
     
