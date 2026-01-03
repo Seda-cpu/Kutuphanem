@@ -30,6 +30,12 @@ struct AddBookView: View {
     
     @State private var selectedImageItem: PhotosPickerItem?
     @State private var selectedUIImage: UIImage?
+    
+    @State private var showCoverSheet = false
+    @State private var showCameraPicker = false
+    @State private var showImagePicker = false
+    @State private var metadataNotFount = false
+    
 
     var body: some View {
         NavigationStack {
@@ -38,6 +44,9 @@ struct AddBookView: View {
                     TextField("Kitap adi", text: $title)
                     TextField("Yazar", text: $author)
                     TextField("ISBN (opsiyonel)", text: $isbn).keyboardType(.numberPad)
+                    if metadataNotFount {
+                        Text("Bu kitap Google'da bulunamadı. Bilgileri manuel ekleyebilirsiniz.").font(.caption).foregroundColor(.secondary)
+                    }
                     TextField("Sayfa sayısı (opsiyonel)", text: $pageCount)
                             .keyboardType(.numberPad)
                 }
@@ -75,11 +84,9 @@ struct AddBookView: View {
                     }
 
                     // Kapak seç
-                    PhotosPicker(
-                        selection: $selectedImageItem,
-                        matching: .images,
-                        photoLibrary: .shared()
-                    ) {
+                    Button {
+                        showCoverSheet = true
+                    } label: {
                         Text(selectedUIImage == nil ? "Kapak Ekle" : "Kapağı Değiştir")
                             .foregroundColor(.blue)
                     }
@@ -89,6 +96,15 @@ struct AddBookView: View {
                 Section(header: Text("Not")) {
                     TextEditor(text: $note).frame(minHeight: 100)
                 }
+                
+                PhotosPicker(
+                    selection: $selectedImageItem,
+                    matching: .images,
+                    photoLibrary: .shared()
+                ) {
+                    EmptyView()
+                }
+                
             }
             .navigationTitle(context == .library ? "Kitap Ekle" : "İstek Listesine Ekle")
             .toolbar {
@@ -112,8 +128,33 @@ struct AddBookView: View {
                 print("🔁 TASK TETIKLENDI - ISBN:", isbn)
                 fetchMetadataIfNeeded()
             }
+            .sheet(isPresented: $showCoverSheet) {
+                CoverSourceSheetView {
+
+                    // Galeri
+                    showCoverSheet = false
+                    showImagePicker = true
+
+                } onCamera: {
+
+                    // Kamera
+                    showCoverSheet = false
+                    showCameraPicker = true
+
+                } onCancel: {
+
+                    showCoverSheet = false
+                }
+            }
+            .sheet(isPresented: $showCameraPicker) {
+                ImagePicker(sourceType: .camera) { image in
+                    selectedUIImage = image
+                }
+            }
             
         }
+        
+        
         
     }
     
@@ -166,6 +207,7 @@ struct AddBookView: View {
 
                 guard let metadata = result else {
                     print("⚠️ Google Books: kitap bulunamadı")
+                    metadataNotFount = true
                     return
                 }
 
@@ -185,7 +227,7 @@ struct AddBookView: View {
                 if pageCount.isEmpty, let count = metadata.pageCount {
                     pageCount = String(count)
                 }
-
+                metadataNotFount = true
             } catch {
                 print("❌ Google Books error:", error)
             }
