@@ -11,9 +11,16 @@ import SwiftData
 
 @main
 struct KutuphanemApp: App {
+    @State private var showSplash = true
+    
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            if showSplash {
+                SplashView(showSplash: $showSplash)
+            }else {
+                ContentView()
+            }
+            
         }
         .modelContainer(for: [Book.self, FeedItem.self])
     }

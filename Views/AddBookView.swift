@@ -31,11 +31,16 @@ struct AddBookView: View {
     @State private var selectedImageItem: PhotosPickerItem?
     @State private var selectedUIImage: UIImage?
     
-    @State private var showCoverSheet = false
+    
     @State private var showCameraPicker = false
-    @State private var showImagePicker = false
     @State private var metadataNotFount = false
     
+    
+
+   
+
+    @State private var showCoverSource = false
+    @State private var showPhotoPicker = false
 
     var body: some View {
         NavigationStack {
@@ -85,11 +90,14 @@ struct AddBookView: View {
 
                     // Kapak seç
                     Button {
-                        showCoverSheet = true
+                        showCoverSource = true
                     } label: {
                         Text(selectedUIImage == nil ? "Kapak Ekle" : "Kapağı Değiştir")
                             .foregroundColor(.blue)
                     }
+                    
+                    
+                    
                 }
                 
                 
@@ -97,14 +105,13 @@ struct AddBookView: View {
                     TextEditor(text: $note).frame(minHeight: 100)
                 }
                 
+               
                 PhotosPicker(
                     selection: $selectedImageItem,
-                    matching: .images,
-                    photoLibrary: .shared()
+                    matching: .images
                 ) {
                     EmptyView()
                 }
-                
             }
             .navigationTitle(context == .library ? "Kitap Ekle" : "İstek Listesine Ekle")
             .toolbar {
@@ -123,27 +130,30 @@ struct AddBookView: View {
             
             .onChange(of: selectedImageItem){
                 loadSelectedImage()
+                
+                
+                
             }
             .task(id: isbn) {
                 print("🔁 TASK TETIKLENDI - ISBN:", isbn)
                 fetchMetadataIfNeeded()
             }
-            .sheet(isPresented: $showCoverSheet) {
+            .sheet(isPresented: $showCoverSource) {
                 CoverSourceSheetView {
 
                     // Galeri
-                    showCoverSheet = false
-                    showImagePicker = true
+                    showCoverSource = false
+                    showPhotoPicker = true
 
                 } onCamera: {
 
                     // Kamera
-                    showCoverSheet = false
+                    showCoverSource = false
                     showCameraPicker = true
 
                 } onCancel: {
 
-                    showCoverSheet = false
+                    showCoverSource = false
                 }
             }
             .sheet(isPresented: $showCameraPicker) {
@@ -151,6 +161,11 @@ struct AddBookView: View {
                     selectedUIImage = image
                 }
             }
+            .photosPicker(
+                isPresented: $showPhotoPicker,
+                selection: $selectedImageItem,
+                matching: .images
+            )
             
         }
         
@@ -210,7 +225,9 @@ struct AddBookView: View {
                     metadataNotFount = true
                     return
                 }
-
+                
+                metadataNotFount = false
+                
                 print("✅ Metadata geldi:")
                 print("   📕 title:", metadata.title)
                 print("   ✍️ author:", metadata.author)
@@ -227,7 +244,7 @@ struct AddBookView: View {
                 if pageCount.isEmpty, let count = metadata.pageCount {
                     pageCount = String(count)
                 }
-                metadataNotFount = true
+                
             } catch {
                 print("❌ Google Books error:", error)
             }
