@@ -3,7 +3,9 @@ import SwiftUI
 struct BookRowView: View {
     
     let book: Book
-    
+    private let accentPink = Color(red: 0.95, green: 0.3, blue: 0.55)
+    private let accentOrange = Color(red: 1.0, green: 0.55, blue: 0.2)
+
     var body: some View {
         HStack(spacing: 12) {
             
@@ -18,7 +20,16 @@ struct BookRowView: View {
                     .cornerRadius(6)
             } else {
                 RoundedRectangle(cornerRadius: 6)
-                    .fill(Color.gray.opacity(0.3))
+                    .fill(
+                        LinearGradient(
+                            colors: [
+                                accentPink.opacity(0.25),
+                                accentOrange.opacity(0.25)
+                            ],
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+                    )
                     .frame(width: 40, height: 60)
             }
             
@@ -33,7 +44,18 @@ struct BookRowView: View {
                 HStack(spacing: 6) {
                     Text(book.ReadingStatus.rawValue)
                         .font(.caption)
-                        .foregroundColor(.blue)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(
+                            LinearGradient(
+                                colors: [accentPink, accentOrange],
+                                startPoint: .leading,
+                                endPoint: .trailing
+                            )
+                        )
+                        .clipShape(Capsule())
 
                     if let percent = book.readingProgressText {
                         Text(percent)

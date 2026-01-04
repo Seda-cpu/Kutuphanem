@@ -32,6 +32,9 @@ struct ProfileView: View {
     @State private var showAddSheet = false
     @State private var addKind: FeedItem.Kind = .quote
     
+    private let accentPink = Color(red: 0.95, green: 0.3, blue: 0.55)
+    private let accentOrange = Color(red: 1.0, green: 0.55, blue: 0.2)
+
     var body: some View {
         NavigationStack {
             ZStack (alignment: .bottomTrailing) {
@@ -120,7 +123,13 @@ struct ProfileView: View {
             HStack(spacing: 12) {
                 Image(systemName: "person.crop.circle.fill")
                     .font(.system(size: 44))
-                    .foregroundColor(.blue)
+                    .foregroundStyle(
+                        LinearGradient(
+                            colors: [accentPink, accentOrange],
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+                    )
 
                 VStack(alignment: .leading, spacing: 4) {
                     if isEditingName {
@@ -136,7 +145,22 @@ struct ProfileView: View {
                     } label: {
                         HStack(spacing: 4) {
                             Text("\(currentReadingBadge.emoji) \(currentReadingBadge.title)")
-                                .font(.subheadline)
+                                .font(.subheadline.weight(.semibold))
+                                .padding(.horizontal, 10)
+                                .padding(.vertical, 4)
+                                .background(
+                                    Capsule()
+                                        .fill(
+                                            LinearGradient(
+                                                colors: [
+                                                    accentPink.opacity(0.15),
+                                                    accentOrange.opacity(0.15)
+                                                ],
+                                                startPoint: .leading,
+                                                endPoint: .trailing
+                                            )
+                                        )
+                                )
 
                             Image(systemName: "chevron.right")
                                 .font(.caption)
@@ -155,7 +179,13 @@ struct ProfileView: View {
                 } label: {
                     Image(systemName: isEditingName ? "checkmark.circle.fill" : "pencil.circle")
                         .font(.title2)
-                        .foregroundColor(.blue)
+                        .foregroundStyle(
+                            LinearGradient(
+                                colors: [accentPink, accentOrange],
+                                startPoint: .top,
+                                endPoint: .bottom
+                            )
+                        )
                 }
             }
 
@@ -205,16 +235,71 @@ struct ProfileView: View {
         ) {
             LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
                 statTile(title: "Toplam", value: "\(totalCount)", systemImage: "books.vertical")
+                    .font(.title3)
+                    .foregroundStyle(
+                        LinearGradient(
+                            colors: [accentPink, accentOrange],
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+                    )
                 statTile(title: "Okudum", value: "\(finishedCount)", systemImage: "checkmark.circle")
+                    .font(.title3)
+                    .foregroundStyle(
+                        LinearGradient(
+                            colors: [accentPink, accentOrange],
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+                    )
                 statTile(title: "Okuyorum", value: "\(readingCount)", systemImage: "book")
+                    .font(.title3)
+                    .foregroundStyle(
+                        LinearGradient(
+                            colors: [accentPink, accentOrange],
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+                    )
                 statTile(title: "İstek", value: "\(wishlistCount)", systemImage: "star")
+                    .font(.title3)
+                    .foregroundStyle(
+                        LinearGradient(
+                            colors: [accentPink, accentOrange],
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+                    )
                 statTile(title: "Okunan Sayfa", value: "\(pagesReadTotal)", systemImage: "text.book.closed")
+                    .font(.title3)
+                    .foregroundStyle(
+                        LinearGradient(
+                            colors: [accentPink, accentOrange],
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+                    )
                 statTile(title: "Yarım Bıraktım", value: "\(abandonedCount)", systemImage: "xmark.circle")
+                    .font(.title3)
+                    .foregroundStyle(
+                        LinearGradient(
+                            colors: [accentPink, accentOrange],
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+                    )
             }
             .padding(.top, 8)
         } label: {
             Text("İstatistikler")
                 .font(.headline)
+                .foregroundStyle(
+                    LinearGradient(
+                        colors: [accentPink, accentOrange],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                )
         }
         .padding()
         .background(
@@ -227,7 +312,13 @@ struct ProfileView: View {
         HStack(spacing: 10) {
             Image(systemName: systemImage)
                 .font(.title3)
-                .foregroundColor(.blue)
+                .foregroundStyle(
+                    LinearGradient(
+                        colors: [accentPink, accentOrange],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                )
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)
@@ -364,11 +455,25 @@ struct ProfileView: View {
                 }
             } label: {
                 Image(systemName: showAddMenu ? "xmark" : "plus")
-                    .font(.title)
+                 
+                    .font(.system(size: 24, weight: .semibold))
                     .foregroundColor(.white)
-                    .frame(width: 56, height: 56)
-                    .background(Circle().fill(Color.blue))
-                    .shadow(radius: 6)
+                    .padding(18)
+                    .background(
+                        Circle()
+                            .fill(
+                                LinearGradient(
+                                    colors: [
+                                        accentPink,
+                                        accentOrange
+                                    ],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
+                            )
+                    )
+                    .shadow(color: accentPink.opacity(0.35),
+                            radius: 10, x: 0, y: 6)
             }
         }
     }

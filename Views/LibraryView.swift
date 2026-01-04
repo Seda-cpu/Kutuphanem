@@ -29,6 +29,8 @@ struct LibraryView: View {
     
     @State private var activeSheet: ActiveSheet?
    
+    private let accentPink = Color(red: 0.95, green: 0.3, blue: 0.55)
+    private let accentOrange = Color(red: 1.0, green: 0.55, blue: 0.2)
 
     
     var body: some View {
@@ -55,6 +57,19 @@ struct LibraryView: View {
                 layout = (defaultLibraryLayout == "grid") ? .grid : .list
             }
             .navigationTitle("Kütüphanem")
+            .toolbarBackground(.visible, for: .navigationBar)
+            .toolbarBackground(
+                LinearGradient(
+                    colors: [
+                        accentPink.opacity(0.08),
+                        accentOrange.opacity(0.05)
+                    ],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                ),
+                for: .navigationBar
+            )
+            
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Menu {
@@ -72,6 +87,13 @@ struct LibraryView: View {
                         }
                     } label: {
                         Image(systemName: "plus")
+                        .foregroundStyle(
+                            LinearGradient(
+                                colors: [accentPink, accentOrange],
+                                startPoint: .top,
+                                endPoint: .bottom
+                            )
+                        )
                     }
                 }
 
@@ -121,7 +143,10 @@ struct LibraryView: View {
     }
     
     private var listView: some View {
+        
         List {
+            
+            
             ForEach(books) { book in
                 NavigationLink {
                     BookDetailView(book: book)
@@ -130,7 +155,10 @@ struct LibraryView: View {
                 }
             }
             .onDelete(perform: deleteBook)
+            
         }
+        
+        
     }
     
     private let gridColumns = [
@@ -147,11 +175,24 @@ struct LibraryView: View {
                     } label: {
                         BookGridItemView(book: book)
                     }
+                    .buttonStyle(.plain)          // 🔥 Link mavisini ve underline hissini keser
                 }
             }
-            .padding()
-            .animation(.easeInOut(duration: 0.25), value: books)
+            .padding(.horizontal, 16)
+            .padding(.top, 12)
+            .padding(.bottom, 24)
         }
+        .background(
+            LinearGradient(
+                colors: [
+                    accentPink.opacity(0.04),
+                    accentOrange.opacity(0.03),
+                    Color(.systemBackground)
+                ],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+        )
     }
     
     

@@ -19,6 +19,10 @@ struct BookDetailView: View {
     @AppStorage("autoMarkFinished") private var autoMarkFinished: Bool = false
     @State private var showAddQuoteSheet = false
     
+    private let accentPink = Color(red: 0.95, green: 0.3, blue: 0.55)
+    private let accentOrange = Color(red: 1.0, green: 0.55, blue: 0.2)
+
+    
     var body: some View {
         Form {
             
@@ -34,7 +38,13 @@ struct BookDetailView: View {
                         photoLibrary: .shared()
                     ) {
                         Text(book.coverImageName == nil ? "Kapak Ekle" : "Kapağı Değiştir")
-                            .foregroundColor(.blue)
+                            .foregroundStyle(
+                                LinearGradient(
+                                    colors: [accentPink, accentOrange],
+                                    startPoint: .leading,
+                                    endPoint: .trailing
+                                )
+                            )
                     }
                 }
             }
@@ -65,7 +75,11 @@ struct BookDetailView: View {
                     )
                     .overlay(
                         RoundedRectangle(cornerRadius: 8)
-                            .stroke(Color.blue.opacity(0.4))
+                            .stroke(LinearGradient(
+                                colors: [accentPink.opacity(0.6), accentOrange.opacity(0.6)],
+                                startPoint: .leading,
+                                endPoint: .trailing
+                            ))
                     )
                     .onAppear {
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
@@ -126,7 +140,11 @@ struct BookDetailView: View {
                             )
                             .overlay(
                                 RoundedRectangle(cornerRadius: 8)
-                                    .stroke(Color.blue.opacity(0.4))
+                                    .stroke(LinearGradient(
+                                        colors: [accentPink.opacity(0.6), accentOrange.opacity(0.6)],
+                                        startPoint: .leading,
+                                        endPoint: .trailing
+                                    ))
                             )
                             
                             Text("Toplam \(pageCount) sayfa")
@@ -135,6 +153,13 @@ struct BookDetailView: View {
 
                             if let percent = book.readingProgressText {
                                 ProgressView(value: book.readingProgress)
+                                    .tint(
+                                            LinearGradient(
+                                                colors: [accentPink, accentOrange],
+                                                startPoint: .leading,
+                                                endPoint: .trailing
+                                            )
+                                        )
                                 Text(percent)
                                     .font(.caption)
                                     .foregroundColor(.secondary)
@@ -160,8 +185,14 @@ struct BookDetailView: View {
                 }
                 .padding()
                 .background(
-                    RoundedRectangle(cornerRadius: 14)
-                        .fill(Color(.secondarySystemBackground))
+                    LinearGradient(
+                        colors: [
+                            accentPink.opacity(0.15),
+                            accentOrange.opacity(0.15)
+                        ],
+                        startPoint: .leading,
+                        endPoint: .trailing
+                    )
                 )
             }
             .buttonStyle(.plain)
@@ -188,6 +219,18 @@ struct BookDetailView: View {
                 }
             }
         }
+        .toolbarBackground(.visible, for: .navigationBar)
+        .toolbarBackground(
+            LinearGradient(
+                colors: [
+                    accentPink.opacity(0.06),
+                    accentOrange.opacity(0.04)
+                ],
+                startPoint: .top,
+                endPoint: .bottom
+            ),
+            for: .navigationBar
+        )
         .sheet(isPresented: $showAddQuoteSheet) {
             AddQuoteView(book: book)
         }
@@ -203,11 +246,26 @@ struct BookDetailView: View {
                 .scaledToFit()
         } else {
             RoundedRectangle(cornerRadius: 12)
-                .fill(Color.gray.opacity(0.2))
+                .fill(
+                    LinearGradient(
+                        colors: [
+                            accentPink.opacity(0.15),
+                            accentOrange.opacity(0.15)
+                        ],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                )
                 .overlay(
                     Image(systemName: "book")
                         .font(.largeTitle)
-                        .foregroundColor(.secondary)
+                        .foregroundStyle(
+                            LinearGradient(
+                                colors: [accentPink, accentOrange],
+                                startPoint: .top,
+                                endPoint: .bottom
+                            )
+                        )
                 )
         }
     }
