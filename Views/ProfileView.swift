@@ -34,7 +34,8 @@ struct ProfileView: View {
     
     private let accentPink = Color(red: 0.95, green: 0.3, blue: 0.55)
     private let accentOrange = Color(red: 1.0, green: 0.55, blue: 0.2)
-
+    @State private var showNotificationSettings = false
+    
     var body: some View {
         NavigationStack {
             ZStack (alignment: .bottomTrailing) {
@@ -48,6 +49,9 @@ struct ProfileView: View {
                         feedSection
                         // İleride buraya “Ayarlar” section’ları koyacağız.
                         // Örn: export, theme, backup, vs.
+                        
+                        
+                        
                     }
                     .padding()
                 }
@@ -75,6 +79,12 @@ struct ProfileView: View {
                             }
 
                             Divider()
+                            
+                            Button("Okuma Hatırlatmaları") {
+                                showNotificationSettings = true
+                            }
+                            
+                            Divider()
 
                             Button("Dışa Aktar (JSON)") {
                                 exportBooks()
@@ -91,6 +101,10 @@ struct ProfileView: View {
                 .sheet(item: $editingItem) { item in
                     EditQuoteView(item: item)
                 }
+                .navigationDestination(isPresented: $showNotificationSettings) {
+                    NotificationSettingsView()
+                }
+                
                 
                 floatingAddButton
                     .padding()
@@ -113,7 +127,6 @@ struct ProfileView: View {
                 print("❌ Export başarısız:", error)
             }
         }
-        
         
         
     }
