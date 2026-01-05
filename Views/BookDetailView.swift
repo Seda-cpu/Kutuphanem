@@ -18,6 +18,7 @@ struct BookDetailView: View {
     @State private var isEditingPageCount = false
     @AppStorage("autoMarkFinished") private var autoMarkFinished: Bool = false
     @State private var showAddQuoteSheet = false
+    @State private var showShareSheet = false
     
     private let accentPink = Color(red: 0.95, green: 0.3, blue: 0.55)
     private let accentOrange = Color(red: 1.0, green: 0.55, blue: 0.2)
@@ -219,6 +220,15 @@ struct BookDetailView: View {
                 }
             }
         }
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Button {
+                    showShareSheet = true
+                } label: {
+                    Image(systemName: "square.and.arrow.up")
+                }
+            }
+        }
         .toolbarBackground(.visible, for: .navigationBar)
         .toolbarBackground(
             LinearGradient(
@@ -233,6 +243,9 @@ struct BookDetailView: View {
         )
         .sheet(isPresented: $showAddQuoteSheet) {
             AddQuoteView(book: book)
+        }
+        .sheet(isPresented: $showShareSheet) {
+            ShareSheet(activityItems: [shareText])
         }
         
     }
@@ -296,5 +309,18 @@ struct BookDetailView: View {
         }
     }
   
-    
+    private var shareText: String {
+        var text = "📚 Kitap Önerisi\n\n"
+        text += book.title
+
+        if !book.author.isEmpty {
+            text += " – \(book.author)"
+        }
+
+        text += "\n\nBu kitabı Ayraç uygulamasında okuyorum."
+        text += "\n📲 Uygulamayı indir:\n"
+        text += "https://apps.apple.com/app/idXXXXXXXXX"
+
+        return text
+    }
 }
