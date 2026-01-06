@@ -147,7 +147,7 @@ struct LibraryView: View {
         List {
             
             
-            ForEach(books) { book in
+            ForEach(sortedBooks) { book in
                 NavigationLink {
                     BookDetailView(book: book)
                 } label: {
@@ -169,7 +169,7 @@ struct LibraryView: View {
     private var gridView: some View {
         ScrollView {
             LazyVGrid(columns: gridColumns, spacing: 16) {
-                ForEach(books) { book in
+                ForEach(sortedBooks) { book in
                     NavigationLink {
                         BookDetailView(book: book)
                     } label: {
@@ -194,6 +194,30 @@ struct LibraryView: View {
             )
         )
     }
+    
+    
+    private var sortedBooks: [Book] {
+        
+        let result = books.sorted {
+            if $0.ReadingStatus == .reading && $1.ReadingStatus != .reading {
+                return true
+            }
+            if $0.ReadingStatus != .reading && $1.ReadingStatus == .reading {
+                return false
+            }
+            return false
+        }
+        
+        print("📚 SORTED BOOKS:")
+        for book in result {
+            print("• \(book.title) – \(book.ReadingStatus)")
+        }
+
+        return result
+    
+        
+    }
+    
     
     
 }
