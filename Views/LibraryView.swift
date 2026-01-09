@@ -31,7 +31,7 @@ struct LibraryView: View {
    
     private let accentPink = Color(red: 0.95, green: 0.3, blue: 0.55)
     private let accentOrange = Color(red: 1.0, green: 0.55, blue: 0.2)
-
+    @State private var searchText: String = ""
     
     var body: some View {
         NavigationStack {
@@ -123,7 +123,7 @@ struct LibraryView: View {
             }
             .animation(.easeInOut(duration: 0.22), value: layout)
             
-        }
+        }.searchable(text: $searchText, prompt: "Kitap veya yazar ara")
         
         
         
@@ -196,29 +196,44 @@ struct LibraryView: View {
     }
     
     
+//    private var sortedBooks: [Book] {
+//        let result = books.sorted {
+//            if $0.ReadingStatus == .reading && $1.ReadingStatus != .reading {
+//                return true
+//            }
+//            if $0.ReadingStatus != .reading && $1.ReadingStatus == .reading {
+//                return false
+//            }
+//            return false
+//        }
+//        print("📚 SORTED BOOKS:")
+//        for book in result {
+//            print("• \(book.title) – \(book.ReadingStatus)")
+//        }
+//        return result
+//    }
+    
     private var sortedBooks: [Book] {
-        
-        let result = books.sorted {
-            if $0.ReadingStatus == .reading && $1.ReadingStatus != .reading {
-                return true
+        let base = books
+
+        let searched: [Book]
+        if searchText.isEmpty {
+            searched = base
+        } else {
+            searched = base.filter {
+                $0.title.localizedCaseInsensitiveContains(searchText) ||
+                $0.author.localizedCaseInsensitiveContains(searchText)
             }
-            if $0.ReadingStatus != .reading && $1.ReadingStatus == .reading {
-                return false
-            }
-            return false
         }
-        
-        print("📚 SORTED BOOKS:")
-        for book in result {
-            print("• \(book.title) – \(book.ReadingStatus)")
+
+        let result = searched.sorted {
+            if $0.ReadingStatus == .reading && $1.ReadingStatus != .reading { return true }
+            if $0.ReadingStatus != .reading && $1.ReadingStatus == .reading { return false }
+            return $0.title < $1.title   // ⭐ stabil ikinci kriter
         }
 
         return result
-    
-        
     }
-    
-    
     
 }
 extension AnyTransition {
