@@ -33,6 +33,18 @@ struct LibraryView: View {
     private let accentOrange = Color(red: 1.0, green: 0.55, blue: 0.2)
     @State private var searchText: String = ""
     
+    
+    enum LibraryFilter: String, CaseIterable, Identifiable {
+        case all = "Tümü"
+        case reading = "Okuyorum"
+        case finished = "Okudum"
+        case abandoned = "Yarım bıraktım"
+
+        var id: String { rawValue }
+    }
+    @State private var selectedFilter: LibraryFilter = .all
+    
+    
     var body: some View {
         NavigationStack {
             Group {
@@ -104,6 +116,23 @@ struct LibraryView: View {
                         Image(systemName: layout == .list ? "square.grid.2x2" : "list.bullet")
                     }
                 }
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Menu {
+                        ForEach(LibraryFilter.allCases) { filter in
+                            Button {
+                                selectedFilter = filter
+                            } label: {
+                                Label(
+                                    filter.rawValue,
+                                    systemImage: selectedFilter == filter ? "checkmark" : ""
+                                )
+                            }
+                        }
+                    } label: {
+                        Image(systemName: "line.3.horizontal.decrease.circle")
+                    }
+                }
+                
             }
             .sheet(item: $activeSheet) { sheet in
                 switch sheet {
@@ -216,11 +245,27 @@ struct LibraryView: View {
     private var sortedBooks: [Book] {
         let base = books
 
+        
+        
+        let filtered: [Book]
+        switch selectedFilter {
+        case .all:
+            filtered = base
+        case .reading:
+            filtered = base.filter { $0.ReadingStatus == .reading }
+        case .finished:
+            filtered = base.filter { $0.ReadingStatus == .finished }
+        case .abandoned:
+            filtered = base.filter { $0.ReadingStatus == .abandoned }
+        }
+        
+        
+        
         let searched: [Book]
         if searchText.isEmpty {
-            searched = base
+            searched = filtered
         } else {
-            searched = base.filter {
+            searched = filtered.filter {
                 $0.title.localizedCaseInsensitiveContains(searchText) ||
                 $0.author.localizedCaseInsensitiveContains(searchText)
             }
